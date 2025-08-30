@@ -12,7 +12,7 @@ function useLayout(devices: Device[]) {
     const nodes = devices.map((d, i) => {
       const a = (i / n) * Math.PI * 2;
       return {
-        id: Number(d.id), // numeric id from backend
+        id: d.id,
         name: d.name,
         status: d.status,
         pos: new THREE.Vector3(
@@ -36,8 +36,8 @@ function useLayout(devices: Device[]) {
 }
 
 type NodeBallProps = {
-  node: { id: number; name: string; status: Device["status"]; pos: THREE.Vector3 };
-  onPick: (id: number) => void;
+  node: { id: Device["id"]; name: string; status: Device["status"]; pos: THREE.Vector3 };
+  onPick: (id: Device["id"]) => void;
 };
 
 function NodeBall({ node, onPick }: NodeBallProps) {
@@ -93,7 +93,7 @@ export default function Topology3D({
   onPick,
 }: {
   devices: Device[];
-  onPick: (id: number) => void;
+  onPick: (id: Device["id"]) => void;
 }) {
   const { nodes, links } = useLayout(devices);
 

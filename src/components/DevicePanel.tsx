@@ -9,10 +9,46 @@ import { DeviceDetails } from "@/lib/types";
 import { getLogs } from "./getLogs";
 
 type Props = {
-  deviceId: number | null;
+  deviceId: string | number | null;
   open: boolean;
   onClose: () => void;
 };
+
+function mapDetails(raw: Record<string, unknown>, prev?: DeviceDetails): DeviceDetails {
+  const id = raw.id ?? prev?.id ?? "";
+  const givenName = raw.given_name as string | undefined;
+  const hostname = raw.hostname as string | undefined;
+  const nameField = raw.name as string | undefined;
+  const isActive = raw.is_active as boolean | undefined;
+  const statusField = raw.status as DeviceDetails["status"] | undefined;
+  const metrics = raw.metrics as DeviceDetails["metrics"] | undefined;
+  const trends = raw.trends as DeviceDetails["trends"] | undefined;
+  const lastSeen = raw.last_seen as string | undefined;
+  const firstSeen = raw.first_seen as string | undefined;
+  const ip = raw.ip as string | undefined;
+  const group = raw.group as { name?: string } | undefined;
+  const locationRaw = raw.location as string | undefined;
+  const logs = raw.logs as DeviceDetails["logs"] | undefined;
+  const blocklist = raw.blocklist as Record<string, boolean> | undefined;
+  return {
+    id: String(id),
+    name: givenName ?? hostname ?? nameField ?? prev?.name ?? `Device ${id}`,
+    status:
+      isActive != null
+        ? isActive
+          ? "online"
+          : "offline"
+        : statusField ?? prev?.status ?? "offline",
+    metrics: metrics ?? prev?.metrics ?? { cpu: 0, mem: 0, net: 0 },
+    trends: trends ?? prev?.trends ?? { cpu: [], mem: [], net: [] },
+    lastSeen:
+      lastSeen ?? firstSeen ?? prev?.lastSeen ?? new Date().toISOString(),
+    ip: ip ?? prev?.ip ?? "—",
+    location: group?.name ?? locationRaw ?? prev?.location,
+    logs: logs ?? prev?.logs ?? [],
+    blocklist: blocklist ?? prev?.blocklist ?? {},
+  };
+}
 
 export default function DevicePanel({ deviceId, open, onClose }: Props) {
   const [data, setData] = useState<DeviceDetails | null>(null);
@@ -22,35 +58,23 @@ export default function DevicePanel({ deviceId, open, onClose }: Props) {
 
   useEffect(() => {
     (async () => {
-      if (!open || !deviceId) return;
+      if (!open || deviceId == null) return;
       setLoading(true);
       setError(null);
-
-      const toDetails = (raw: any): DeviceDetails => ({
-        id: Number(raw.id),
-        name: raw.given_name ?? raw.hostname ?? `Device ${raw.id}`,
-        status: raw.is_active ? "online" : "offline",
-        metrics: raw.metrics ?? { cpu: 0, mem: 0, net: 0 },
-        trends: raw.trends ?? { cpu: [], mem: [], net: [] },
-        lastSeen: raw.last_seen ?? raw.first_seen ?? new Date().toISOString(),
-        ip: raw.ip ?? "—",
-        location: raw.group?.name,
-        logs: raw.logs ?? [],
-        blocklist: raw.blocklist ?? {},
-      });
-
       try {
-        // Try to find the device in the list first
+        const id = String(deviceId);
         const list = await axios.get(`/api/devices`);
-        let raw = list.data.find((d: any) => Number(d.id) === Number(deviceId));
-
-        // Fallback to per-device endpoint if not present in list
-        if (!raw) {
-          const one = await axios.get(`/api/devices/${deviceId}`);
-          raw = one.data;
+        const rawList = list.data.find(
+          (d: Record<string, unknown>) => String((d as { id: unknown }).id) === id
+        );
+        let detail = rawList;
+        try {
+          const one = await axios.get(`/api/devices/${id}`);
+          detail = one.data;
+        } catch {
+          // ignore detail fetch errors; fallback to list data
         }
-
-        setData(raw ? toDetails(raw) : null);
+        setData(detail ? mapDetails(detail, rawList ? mapDetails(rawList) : undefined) : null);
       } catch {
         setError("Could not load device details");
         setData(null);
@@ -74,26 +98,7 @@ export default function DevicePanel({ deviceId, open, onClose }: Props) {
         action,
         ...(category ? { category } : {}),
       });
-      // server may return updated device; map minimally
-      const raw = res.data ?? {};
-      setData((prev) => ({
-        ...(prev ?? { id: data.id, name: data.name, status: data.status }),
-        status:
-          raw.is_active != null
-            ? raw.is_active
-              ? "online"
-              : "offline"
-            : prev?.status ?? data.status,
-        blocklist: raw.blocklist ?? prev?.blocklist ?? data.blocklist ?? {},
-        logs: raw.logs ?? prev?.logs ?? data.logs ?? [],
-        metrics: raw.metrics ?? prev?.metrics ?? data.metrics,
-        trends: raw.trends ?? prev?.trends ?? data.trends,
-        lastSeen:
-          raw.last_seen ?? prev?.lastSeen ?? data.lastSeen ?? new Date().toISOString(),
-        ip: raw.ip ?? prev?.ip ?? data.ip,
-        location: raw.group?.name ?? prev?.location ?? data.location,
-        name: raw.given_name ?? raw.hostname ?? prev?.name ?? data.name,
-      }));
+      setData((prev) => mapDetails(res.data ?? {}, prev ?? data));
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
         setError(e.response?.data?.detail || "Action failed");
