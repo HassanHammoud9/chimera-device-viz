@@ -1,6 +1,7 @@
 // src/components/DevicePanel.tsx
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { fetchDevices, fetchDeviceById } from "@/lib/mock";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Cpu, Wifi, HardDrive } from "lucide-react";
 import Gauge from "./Gauge";
@@ -63,18 +64,35 @@ export default function DevicePanel({ deviceId, open, onClose }: Props) {
       setError(null);
       try {
         const id = String(deviceId);
-        const list = await axios.get(`/api/devices`);
-        const rawList = list.data.find(
+
+        // Fetch the device list, falling back to mock data if the API fails.
+        let list: Record<string, unknown>[] = [];
+        try {
+          list = (await axios.get(`/api/devices`)).data;
+        } catch {
+          list = (await fetchDevices()) as unknown as Record<string, unknown>[];
+        }
+
+        const rawList = list.find(
           (d: Record<string, unknown>) => String((d as { id: unknown }).id) === id
         );
-        let detail = rawList;
+
+        // Try to load the full device details. If the API request fails, use the
+        // mock detail data instead so the panel still renders useful content.
+        let detail: Record<string, unknown> | null = rawList ?? null;
         try {
-          const one = await axios.get(`/api/devices/${id}`);
-          detail = one.data;
+          detail = (await axios.get(`/api/devices/${id}`)).data;
         } catch {
-          // ignore detail fetch errors; fallback to list data
+          try {
+            detail = await fetchDeviceById(id);
+          } catch {
+            // ignore mock fetch errors; we'll fall back to the list data
+          }
         }
-        setData(detail ? mapDetails(detail, rawList ? mapDetails(rawList) : undefined) : null);
+
+        setData(
+          detail ? mapDetails(detail, rawList ? mapDetails(rawList) : undefined) : null
+        );
       } catch {
         setError("Could not load device details");
         setData(null);
