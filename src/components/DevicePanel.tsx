@@ -25,31 +25,15 @@ export default function DevicePanel({ deviceId, open, onClose }: Props) {
       if (!open || !deviceId) return;
       setLoading(true);
       setError(null);
-
-      const toDetails = (raw: any): DeviceDetails => ({
-        id: Number(raw.id),
-        name: raw.given_name ?? raw.hostname ?? `Device ${raw.id}`,
-        status: raw.is_active ? "online" : "offline",
-        metrics: raw.metrics ?? { cpu: 0, mem: 0, net: 0 },
-        trends: raw.trends ?? { cpu: [], mem: [], net: [] },
-        lastSeen: raw.last_seen ?? raw.first_seen ?? new Date().toISOString(),
-        ip: raw.ip ?? "—",
-        location: raw.group?.name,
-        logs: raw.logs ?? [],
-        blocklist: raw.blocklist ?? {},
-      });
-
       try {
-        // Try to find the device in the list first
+        // Always map backend fields
         const list = await axios.get(`/api/devices`);
         let raw = list.data.find((d: any) => Number(d.id) === Number(deviceId));
-
         // Fallback to per-device endpoint if not present in list
         if (!raw) {
           const one = await axios.get(`/api/devices/${deviceId}`);
           raw = one.data;
         }
-
         setData(raw ? toDetails(raw) : null);
       } catch {
         setError("Could not load device details");
@@ -109,26 +93,26 @@ export default function DevicePanel({ deviceId, open, onClose }: Props) {
     <AnimatePresence>
       {open && (
         <>
-          {/* backdrop */}
+          {/* backdrop (scoped to nearest relative container) */}
           <motion.div
-            className="fixed inset-0 bg-black/50"
+            className="absolute inset-0 bg-black/40 z-10"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
           />
-          {/* panel */}
+          {/* panel (scoped, not fixed) */}
           <motion.aside
-            className="fixed right-0 top-0 bottom-0 w-[420px] bg-panel border-l border-[color:var(--border)] shadow-2xl p-4 overflow-y-auto"
+            className="absolute right-0 top-0 h-full w-[360px] z-20 device-panel border-l border-[color:var(--border)] p-6 pt-4 overflow-y-auto rounded-l-2xl shadow-xl"
             initial={{ x: 420 }}
             animate={{ x: 0 }}
             exit={{ x: 420 }}
             transition={{ type: "spring", stiffness: 260, damping: 28 }}
           >
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-6">
               <div className="space-y-1 mt-6 md:mt-8">
                 <h3
-                  className="text-lg font-bold text-white drop-shadow-md"
+                  className="text-xl font-bold text-white drop-shadow-md"
                   style={{ textShadow: "0 2px 8px #000c" }}
                 >
                   {data?.name ?? "Loading…"}
@@ -156,16 +140,16 @@ export default function DevicePanel({ deviceId, open, onClose }: Props) {
 
             {/* Quick Actions */}
             {data && (
-              <div className="mb-4 flex flex-wrap gap-2">
+              <div className="mb-6 flex flex-wrap gap-2">
                 <button
-                  className="px-3 py-1 rounded bg-yellow-600 text-white font-semibold hover:bg-yellow-700 disabled:opacity-60"
+                  className="px-3 py-1 rounded bg-yellow-600 text-white font-semibold hover:bg-yellow-700 disabled:opacity-60 shadow-sm"
                   disabled={actionLoading === "isolate"}
                   onClick={() => handleAction("isolate")}
                 >
                   {actionLoading === "isolate" ? "Isolating..." : "Isolate"}
                 </button>
                 <button
-                  className="px-3 py-1 rounded bg-green-700 text-white font-semibold hover:bg-green-800 disabled:opacity-60"
+                  className="px-3 py-1 rounded bg-green-700 text-white font-semibold hover:bg-green-800 disabled:opacity-60 shadow-sm"
                   disabled={actionLoading === "release"}
                   onClick={() => handleAction("release")}
                 >
@@ -175,7 +159,7 @@ export default function DevicePanel({ deviceId, open, onClose }: Props) {
                 {Object.keys(data.blocklist || {}).map((cat) => (
                   <button
                     key={cat}
-                    className={`px-3 py-1 rounded font-semibold disabled:opacity-60 ${
+                    className={`px-3 py-1 rounded font-semibold disabled:opacity-60 shadow-sm ${
                       data.blocklist[cat]
                         ? "bg-red-700 text-white hover:bg-red-800"
                         : "bg-gray-700 text-white hover:bg-gray-800"
@@ -190,11 +174,11 @@ export default function DevicePanel({ deviceId, open, onClose }: Props) {
                 ))}
               </div>
             )}
-            {error && <div className="text-red-400 mb-2">{error}</div>}
+            {error && <div className="text-red-400 mb-4">{error}</div>}
 
             {/* status */}
             {data && (
-              <div className="mb-4">
+              <div className="mb-6">
                 <span
                   className={
                     "status-chip rounded-lg px-2 py-0.5 text-xs capitalize " +
@@ -214,7 +198,7 @@ export default function DevicePanel({ deviceId, open, onClose }: Props) {
             )}
 
             {/* gauges */}
-            <div className="grid grid-cols-3 gap-3 soft mb-4">
+            <div className="grid grid-cols-3 gap-4 mb-6">
               <Gauge
                 value={data?.metrics.cpu ?? 0}
                 label="CPU"
@@ -233,8 +217,8 @@ export default function DevicePanel({ deviceId, open, onClose }: Props) {
             </div>
 
             {/* quick info */}
-            <div className="soft mb-4">
-              <div className="grid grid-cols-3 gap-3 text-sm">
+            <div className="mb-6">
+              <div className="grid grid-cols-3 gap-4 text-sm">
                 <Info icon={<Cpu size={16} />} label="Avg CPU" value={`${avg(data?.trends.cpu)}%`} />
                 <Info icon={<HardDrive size={16} />} label="Avg Mem" value={`${avg(data?.trends.mem)}%`} />
                 <Info icon={<Wifi size={16} />} label="Avg Net" value={`${avg(data?.trends.net)}%`} />
@@ -242,9 +226,9 @@ export default function DevicePanel({ deviceId, open, onClose }: Props) {
             </div>
 
             {/* logs */}
-            <div className="soft">
-              <div className="mb-2 font-medium">Recent logs</div>
-              <ul className="space-y-2 text-xs">
+            <div className="bg-[#23242a] rounded-xl p-4 shadow-inner border border-white/5">
+              <div className="mb-3 font-semibold text-base text-white tracking-wide">Recent logs</div>
+              <ul className="space-y-3 text-xs">
                 {getLogs(data, loading).map((l, idx) => (
                   <li key={idx} className="flex items-start gap-2">
                     <span
@@ -277,16 +261,7 @@ export default function DevicePanel({ deviceId, open, onClose }: Props) {
   );
 }
 
-function avg(arr?: number[]) {
-  if (!arr || !arr.length) return 0;
-  return Math.round(arr.reduce((a, b) => a + b, 0) / arr.length);
-}
-function toneOf(v?: number) {
-  if (v == null) return "ok" as const;
-  if (v < 60) return "ok";
-  if (v < 80) return "warn";
-  return "bad";
-}
+// Info block
 function Info({
   icon,
   label,
@@ -297,12 +272,37 @@ function Info({
   value: string;
 }) {
   return (
-    <div className="surface px-3 py-2">
-      <div className="flex items-center gap-2 text-muted">
-        {icon}
-        <span className="text-xs">{label}</span>
-      </div>
-      <div className="mt-1 text-base">{value}</div>
+    <div className="flex items-center gap-2">
+      <span>{icon}</span>
+      <span className="text-muted">{label}</span>
+      <span className="ml-auto font-bold">{value}</span>
     </div>
   );
+}
+
+// Map backend → DeviceDetails
+function toDetails(raw: any): DeviceDetails {
+  return {
+    id: Number(raw.id),
+    name: raw.given_name ?? raw.hostname ?? `Device ${raw.id}`,
+    status: raw.is_active ? "online" : "offline",
+    metrics: raw.metrics ?? { cpu: 0, mem: 0, net: 0 },
+    trends: raw.trends ?? { cpu: [], mem: [], net: [] },
+    lastSeen: raw.last_seen ?? raw.first_seen ?? new Date().toISOString(),
+    ip: raw.ip ?? "—",
+    location: raw.group?.name,
+    logs: raw.logs ?? [],
+    blocklist: raw.blocklist ?? {},
+  };
+}
+
+function avg(arr?: number[]) {
+  if (!arr || !arr.length) return 0;
+  return Math.round(arr.reduce((a, b) => a + b, 0) / arr.length);
+}
+function toneOf(v?: number) {
+  if (v == null) return "ok" as const;
+  if (v < 60) return "ok";
+  if (v < 80) return "warn";
+  return "bad";
 }

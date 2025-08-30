@@ -3,7 +3,6 @@ import { Search, ArrowUpDown } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, Tooltip } from "recharts";
 import { Device } from "@/lib/types";
 import { fetchDevices } from "@/lib/mock";
-import DevicePanel from "@/components/DevicePanel";
 
 // table helpers
 type SortKey = "id" | "name" | "status" | "cpu";
@@ -60,9 +59,6 @@ export default function Devices() {
   const [sortKey, setSortKey] = useState<SortKey>("id");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
-  const [open, setOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-
   useEffect(() => {
     (async () => {
       setLoading(true);
@@ -75,24 +71,36 @@ export default function Devices() {
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     const list = devices.filter(
-      (d) => !q || d.id.toLowerCase().includes(q) || d.name.toLowerCase().includes(q) || d.status.toLowerCase().includes(q)
+      (d) =>
+        !q ||
+        d.id.toString().toLowerCase().includes(q) ||
+        d.name.toLowerCase().includes(q) ||
+        d.status.toLowerCase().includes(q)
     );
     list.sort((a, b) => {
       const dir = sortDir === "asc" ? 1 : -1;
       switch (sortKey) {
-        case "id": return a.id.localeCompare(b.id) * dir;
-        case "name": return a.name.localeCompare(b.name) * dir;
-        case "status": return a.status.localeCompare(b.status) * dir;
-        case "cpu": return (a.cpu - b.cpu) * dir;
-        default: return 0;
+        case "id":
+          return (a.id - b.id) * dir;
+        case "name":
+          return a.name.localeCompare(b.name) * dir;
+        case "status":
+          return a.status.localeCompare(b.status) * dir;
+        case "cpu":
+          return (a.cpu - b.cpu) * dir;
+        default:
+          return 0;
       }
     });
     return list;
   }, [devices, query, sortKey, sortDir]);
 
   function toggleSort(key: SortKey) {
-    if (key === sortKey) setSortDir(d => d === "asc" ? "desc" : "asc");
-    else { setSortKey(key); setSortDir("asc"); }
+    if (key === sortKey) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
   }
 
   const thBtn = "inline-flex items-center gap-1 text-left hover:text-text transition";
@@ -116,44 +124,69 @@ export default function Devices() {
         <table className="min-w-full text-sm">
           <thead className="bg-soft/70">
             <tr className="[&>th]:px-3 [&>th]:py-2 text-muted">
-              <th><button className={thBtn} onClick={() => toggleSort("id")}>ID <ArrowUpDown size={14} className="opacity-60" /></button></th>
-              <th><button className={thBtn} onClick={() => toggleSort("name")}>Name <ArrowUpDown size={14} className="opacity-60" /></button></th>
-              <th><button className={thBtn} onClick={() => toggleSort("status")}>Status <ArrowUpDown size={14} className="opacity-60" /></button></th>
-              <th className="text-right"><button className={thBtn} onClick={() => toggleSort("cpu")}>CPU <ArrowUpDown size={14} className="opacity-60" /></button></th>
+              <th>
+                <button className={thBtn} onClick={() => toggleSort("id")}>
+                  ID <ArrowUpDown size={14} className="opacity-60" />
+                </button>
+              </th>
+              <th>
+                <button className={thBtn} onClick={() => toggleSort("name")}>
+                  Name <ArrowUpDown size={14} className="opacity-60" />
+                </button>
+              </th>
+              <th>
+                <button className={thBtn} onClick={() => toggleSort("status")}>
+                  Status <ArrowUpDown size={14} className="opacity-60" />
+                </button>
+              </th>
+              <th className="text-right">
+                <button className={thBtn} onClick={() => toggleSort("cpu")}>
+                  CPU <ArrowUpDown size={14} className="opacity-60" />
+                </button>
+              </th>
               <th className="text-right pr-4">Trend</th>
             </tr>
           </thead>
           <tbody className="[&>tr:not(:last-child)]:border-b [&>tr]:border-white/10">
-            {(loading ? [] : filtered).map(d => (
+            {(loading ? [] : filtered).map((d) => (
               <tr
                 key={d.id}
-                className="[&>td]:px-3 [&>td]:py-2 hover:bg-white/5 transition cursor-pointer"
-                onClick={() => { setSelectedId(d.id.toString()); setOpen(true); }}
-                title="Click for details"
+                className="[&>td]:px-3 [&>td]:py-2"
               >
                 <td className="font-medium text-text/90">{d.id}</td>
                 <td className="text-text">{d.name}</td>
-                <td><StatusPill status={d.status} /></td>
+                <td>
+                  <StatusPill status={d.status as DeviceStatus} />
+                </td>
                 <td className="text-right">{d.cpu}%</td>
-                <td className="text-right pr-4 text-muted"><Sparkline points={d.cpuHistory} /></td>
+                <td className="text-right pr-4 text-muted">
+                  <Sparkline points={d.cpuHistory} />
+                </td>
               </tr>
             ))}
             {!loading && filtered.length === 0 && (
-              <tr><td colSpan={5} className="px-3 py-10 text-center text-muted">No devices match “{query}”.</td></tr>
+              <tr>
+                <td colSpan={5} className="px-3 py-10 text-center text-muted">
+                  No devices match “{query}”.
+                </td>
+              </tr>
             )}
             {loading && (
-              <tr><td colSpan={5} className="px-3 py-10 text-center text-muted">Loading…</td></tr>
+              <tr>
+                <td colSpan={5} className="px-3 py-10 text-center text-muted">
+                  Loading…
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
       </div>
 
       <div className="text-xs text-muted">
-        {loading ? "Loading…" : `${filtered.length} device${filtered.length === 1 ? "" : "s"} shown • sort by ${sortKey} (${sortDir})`}
+        {loading
+          ? "Loading…"
+          : `${filtered.length} device${filtered.length === 1 ? "" : "s"} shown • sort by ${sortKey} (${sortDir})`}
       </div>
-
-      {/* slide-over */}
-  <DevicePanel deviceId={selectedId} open={open} onClose={() => setOpen(false)} />
     </div>
   );
 }

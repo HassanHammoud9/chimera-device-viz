@@ -28,6 +28,13 @@ body {
 .surface  { @apply rounded-xl bg-neutral-800; border: 1px solid var(--border); }
 .soft     { @apply rounded-xl bg-neutral-700;  border: 1px solid var(--border); }
 
+/* Scoped slide-over panel look */
+.device-panel {
+  background: var(--color-panel);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 10px 28px rgba(0,0,0,.35);
+}
+
 /* 3D node labels (used by Topology3D Html) */
 .r3f-chip {
   background: var(--chip-bg);
