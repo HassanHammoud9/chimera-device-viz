@@ -4,6 +4,8 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "lib": ["DOM", "ES2015", "DOM.Iterable", "ScriptHost"]
+
   }
 }
