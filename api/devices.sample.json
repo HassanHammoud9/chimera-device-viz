@@ -1,0 +1,175 @@
+[
+  {
+    "id": 1,
+    "mac": "02:42:AC:11:00:01",
+    "hostname": "chimera-gw",
+    "vendor": "Raspberry Pi",
+    "given_name": "Gateway",
+    "ip": "192.168.69.1",
+    "user_agent": [
+      "Suricata/7.0",
+      "unbound/1.19.0"
+    ],
+    "is_active": true,
+    "has_custom_blocklist": true,
+    "group": {
+      "id": 1,
+      "name": "Default Group",
+      "is_default": true
+    },
+    "first_seen": "2025-08-12T09:15:03.102311",
+    "last_seen": "2025-08-30T01:22:45.902311",
+    "is_mac_universal": false,
+    "os_name": "Linux 6.1",
+    "os_accuracy": 98,
+    "os_type": "embedded",
+    "os_vendor": "Linux",
+    "os_family": "Linux",
+    "os_gen": "6.X",
+    "os_cpe": [
+      "cpe:/o:linux:linux_kernel:6"
+    ],
+    "os_last_updated": "2025-08-29T10:11:22.101001",
+    "blocklist": {
+      "ads_trackers": true,
+      "gambling": true,
+      "social_media": false,
+      "porn": true,
+      "gaming": false,
+      "streaming": false,
+      "facebook": false,
+      "instagram": false,
+      "tiktok": false,
+      "netflix": false,
+      "youtube": false,
+      "ai": false,
+      "safesearch": true
+    },
+    "ai_classification": {
+      "device_type": "Gateway",
+      "device_category": "Network Infrastructure",
+      "confidence": 0.99,
+      "reasoning": "Chimera services + router role on LAN .1",
+      "indicators": [
+        "Suricata",
+        "Unbound",
+        "LAN gateway IP"
+      ],
+      "last_classified": "2025-08-29T10:12:05.331001"
+    }
+  },
+  {
+    "id": 2,
+    "mac": "B8:27:EB:10:22:33",
+    "hostname": "ap-lobby",
+    "vendor": "Ubiquiti",
+    "given_name": "Lobby AP",
+    "ip": "192.168.69.2",
+    "user_agent": [
+      "UAP/6.5 EdgeOS"
+    ],
+    "is_active": true,
+    "has_custom_blocklist": false,
+    "group": {
+      "id": 4,
+      "name": "IoT",
+      "is_default": false
+    },
+    "first_seen": "2025-08-12T09:16:44.221001",
+    "last_seen": "2025-08-30T01:21:02.991001",
+    "is_mac_universal": false,
+    "os_name": "EdgeOS 2.x",
+    "os_accuracy": 92,
+    "os_type": "embedded",
+    "os_vendor": "Ubiquiti",
+    "os_family": "EdgeOS",
+    "os_gen": "2.X",
+    "os_cpe": [
+      "cpe:/o:ubnt:edgeos:2"
+    ],
+    "os_last_updated": "2025-08-28T14:02:18.101001",
+    "blocklist": {
+      "ads_trackers": false,
+      "gambling": false,
+      "social_media": false,
+      "porn": false,
+      "gaming": false,
+      "streaming": false,
+      "facebook": false,
+      "instagram": false,
+      "tiktok": false,
+      "netflix": false,
+      "youtube": false,
+      "ai": false,
+      "safesearch": false
+    },
+    "ai_classification": {
+      "device_type": "Access Point",
+      "device_category": "Network Infrastructure",
+      "confidence": 0.96,
+      "reasoning": "Ubiquiti AP UA; fixed IP",
+      "indicators": [
+        "EdgeOS",
+        "UAP signature"
+      ],
+      "last_classified": "2025-08-28T14:05:55.331001"
+    }
+  },
+  {
+    "id": 3,
+    "mac": "E4:5F:01:22:33:44",
+    "hostname": "ceo-mac",
+    "vendor": "Apple",
+    "given_name": "CEO MacBook",
+    "ip": "192.168.69.25",
+    "user_agent": [
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) Safari/605.1.15"
+    ],
+    "is_active": true,
+    "has_custom_blocklist": true,
+    "group": {
+      "id": 2,
+      "name": "Staff",
+      "is_default": false
+    },
+    "first_seen": "2025-08-13T07:11:08.252811",
+    "last_seen": "2025-08-30T01:20:11.252551",
+    "is_mac_universal": false,
+    "os_name": "macOS 14.5",
+    "os_accuracy": 99,
+    "os_type": "general purpose",
+    "os_vendor": "Apple",
+    "os_family": "macOS",
+    "os_gen": "14.X",
+    "os_cpe": [
+      "cpe:/o:apple:macos:14"
+    ],
+    "os_last_updated": "2025-08-29T18:30:25.430957",
+    "blocklist": {
+      "ads_trackers": true,
+      "gambling": true,
+      "social_media": false,
+      "porn": true,
+      "gaming": false,
+      "streaming": false,
+      "facebook": false,
+      "instagram": false,
+      "tiktok": false,
+      "netflix": false,
+      "youtube": false,
+      "ai": false,
+      "safesearch": true
+    },
+    "ai_classification": {
+      "device_type": "Workstation",
+      "device_category": "Workstation",
+      "confidence": 0.93,
+      "reasoning": "macOS UA; staff group",
+      "indicators": [
+        "macOS",
+        "Staff group"
+      ],
+      "last_classified": "2025-08-29T18:32:19.673657"
+    }
+  }
+]
