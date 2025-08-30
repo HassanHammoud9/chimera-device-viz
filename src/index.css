@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+/* =========== DARK THEME TOKENS =========== */
+:root {
+  --color-bg:       #0b0e14;
+  --color-panel:    #121723;
+  --color-soft:     #0f1420;
+  --color-text:     #e6e8ee;
+  --color-muted:    #98a1b3;
+  --color-accent:   #7aa2ff;
+  --border:         rgba(255,255,255,.10);
+  --chip-bg:        rgba(255,255,255,.08);
+  --chip-fg:        var(--color-text);
+  --shadow-soft:    0 12px 30px rgba(0,0,0,.35);
+  --radius-xl2:     1.25rem;
+  color-scheme: dark;
+}
+
+html, body, #root { height: 100%; }
+body {
+  @apply bg-neutral-900 text-neutral-100 antialiased;
+  transition: background-color .25s ease, color .25s ease;
+}
+
+/* helpers */
+.app-shell { @apply min-h-dvh grid grid-rows-[auto,1fr,auto]; }
+.cardish  { @apply rounded-xl bg-neutral-800; border: 1px solid var(--border); box-shadow: var(--shadow-soft); }
+.surface  { @apply rounded-xl bg-neutral-800; border: 1px solid var(--border); }
+.soft     { @apply rounded-xl bg-neutral-700;  border: 1px solid var(--border); }
+
+/* 3D node labels (used by Topology3D Html) */
+.r3f-chip {
+  background: var(--chip-bg);
+  color: var(--chip-fg);
+  border: 1px solid var(--border);
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+/* smaller, truncated label for nodes */
+.r3f-chip--sm {
+  font-size: 10px;
+  line-height: 1.1;
+  padding: 2px 6px;
+  max-width: 110px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0.95;
+}
