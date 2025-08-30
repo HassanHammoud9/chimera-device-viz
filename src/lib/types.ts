@@ -1,7 +1,7 @@
 export type DeviceStatus = "online" | "degraded" | "offline";
 
 export type Device = {
-  id: number;
+  id: string;
   name: string;
   status: DeviceStatus;
   cpu: number;          // latest %
@@ -9,7 +9,7 @@ export type Device = {
 };
 
 export type DeviceDetails = {
-  id: number;
+  id: string;
   name: string;
   status: DeviceStatus;
   metrics: {
