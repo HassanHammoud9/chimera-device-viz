@@ -5,7 +5,13 @@
       "@/*": ["src/*"]
     },
     "jsx": "react-jsx",
-    "lib": ["DOM", "ES2015", "DOM.Iterable", "ScriptHost"]
-
+    "lib": ["DOM", "ESNext", "DOM.Iterable", "ScriptHost"],
+    "types": ["node"],
+    "moduleResolution": "node16",
+    "module": "Node16",
+    "target": "esnext",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true
   }
 }
