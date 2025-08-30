@@ -6,12 +6,14 @@
     },
     "jsx": "react-jsx",
     "lib": ["DOM", "ESNext", "DOM.Iterable", "ScriptHost"],
-    "types": ["node"],
-    "moduleResolution": "node16",
+    "types": ["vite/client", "node"],
+    "moduleResolution": "bundler",
     "module": "Node16",
     "target": "esnext",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": true
-  }
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": ["src", "vite.config.ts"]
 }
