@@ -9,7 +9,7 @@ import { DeviceDetails } from "@/lib/types";
 import { getLogs } from "./getLogs";
 
 type Props = {
-  deviceId: string | number | null;
+  deviceId: string | null;
   open: boolean;
   onClose: () => void;
 };
@@ -301,21 +301,7 @@ function Info({
   );
 }
 
-// Map backend → DeviceDetails
-function toDetails(raw: any): DeviceDetails {
-  return {
-    id: Number(raw.id),
-    name: raw.given_name ?? raw.hostname ?? `Device ${raw.id}`,
-    status: raw.is_active ? "online" : "offline",
-    metrics: raw.metrics ?? { cpu: 0, mem: 0, net: 0 },
-    trends: raw.trends ?? { cpu: [], mem: [], net: [] },
-    lastSeen: raw.last_seen ?? raw.first_seen ?? new Date().toISOString(),
-    ip: raw.ip ?? "—",
-    location: raw.group?.name,
-    logs: raw.logs ?? [],
-    blocklist: raw.blocklist ?? {},
-  };
-}
+// (removed unused toDetails function)
 
 function avg(arr?: number[]) {
   if (!arr || !arr.length) return 0;

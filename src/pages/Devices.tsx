@@ -81,7 +81,7 @@ export default function Devices() {
       const dir = sortDir === "asc" ? 1 : -1;
       switch (sortKey) {
         case "id":
-          return (a.id - b.id) * dir;
+          return (Number(a.id) - Number(b.id)) * dir;
         case "name":
           return a.name.localeCompare(b.name) * dir;
         case "status":

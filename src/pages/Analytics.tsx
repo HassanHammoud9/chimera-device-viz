@@ -7,7 +7,7 @@ import DevicePanel from "@/components/DevicePanel";
 export default function Analytics() {
   const [devices, setDevices] = useState<Device[]>([]);
   const [open, setOpen] = useState(false);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => setDevices(await fetchDevices()))();
@@ -25,7 +25,7 @@ export default function Analytics() {
         <Topology3D
           devices={devices}
           onPick={(id) => {
-            setSelectedId(id); // numeric
+            setSelectedId(id); // use string id
             setOpen(true);
           }}
         />
